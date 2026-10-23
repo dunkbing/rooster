@@ -68,7 +68,7 @@ adblock-rust needs it, and `aho-corasick` may use `unsafe` code.
 
 ## Building (macOS, Apple Silicon)
 
-Requirements: Xcode 26 or newer, Homebrew, Python 3 with Pillow, and **at least
+Requirements: Xcode 26 or newer, Homebrew, Python 3.13, and **at least
 60 GB of free disk** for a dev build (about 45 GB used: ~16 GB of source,
 ~3.5 GB of cached downloads, 20–30 GB of build output with no debug symbols).
 Keep `symbol_level = 0` in `config/flags.dev.gn` on a small disk; symbols add
@@ -79,8 +79,7 @@ but can surface new deprecation warnings (not errors here) or SDK breakage that
 needs a patch.
 
 ```sh
-brew install python@3.13 wget zstd coreutils sccache
-pip3 install pillow requests
+brew install python@3.13 wget zstd coreutils sccache   # rooster uses this python3
 xcodebuild -downloadComponent MetalToolchain
 
 export ROOSTER_BUILD_DIR=/Volumes/YourSSD/rooster-build   # optional
