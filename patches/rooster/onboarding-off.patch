@@ -5,6 +5,8 @@ asks for consent to Helium's hosted services. Rooster doesn't fetch it and
 keeps those services off, so the page and its first-run redirect are dropped.
 The onboarding-page patch itself stays applied because later Helium patches
 are written against the code it adds (prefs, settings strings).
+Its strings are removed from generated_resources.grd and from the .gritdeps
+list next to it, which would otherwise still require the downloaded file.
 
 --- a/chrome/browser/ui/webui/BUILD.gn
 +++ b/chrome/browser/ui/webui/BUILD.gn
@@ -125,3 +127,10 @@ are written against the code it adds (prefs, settings strings).
    if (whats_new_enabled && (launch_result == LaunchResult::kWithGivenUrls ||
                              is_incognito_or_guest || is_post_crash_launch)) {
      whats_new::LogStartupType(whats_new::StartupType::kIneligible);
+--- a/chrome/app/generated_resources.grd.gritdeps
++++ b/chrome/app/generated_resources.grd.gritdeps
+@@ -108,4 +108,3 @@
+ chrome/app/support_tool_strings.grdp
+ chrome/app/vr_strings.grdp
+ chrome/app/whats_new_strings.grdp
+-components/helium_onboarding/helium_onboarding_strings.grdp
