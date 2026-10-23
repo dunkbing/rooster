@@ -13,9 +13,10 @@
 #   scripts/rooster reset       delete the prepared source (keeps downloads)
 #
 # Environment:
-#   ROOSTER_BUILD_DIR  where everything large goes (default: ./build). Point it
-#                      at an external SSD: the tree needs ~150 GB.
+#   ROOSTER_BUILD_DIR  where everything large goes (default: ./build). A dev
+#                      build needs ~45 GB (60 GB free to be safe).
 #   ROOSTER_JOBS       parallel compile jobs (default: 6, sized for 16 GB RAM)
+#   SCCACHE_CACHE_SIZE compiler cache limit (default here: 5G)
 
 set -euo pipefail
 
@@ -77,9 +78,14 @@ cmd_doctor() {
     mkdir -p "$BUILD"
     free_gb=$(df -g "$BUILD" | awk 'NR==2 {print $4}')
     echo "• memory: ${mem_gb} GB → ROOSTER_JOBS=${JOBS}"
-    if [ "$free_gb" -lt 150 ]; then
-      echo "✗ ${free_gb} GB free at $BUILD; ~150 GB needed (set ROOSTER_BUILD_DIR to an external SSD)"
+    # A dev build (no symbols, sccache capped) needs roughly 45 GB: ~16 GB of
+    # source, ~3.5 GB of cached downloads, 20-30 GB of build output.
+    if [ "$free_gb" -lt 60 ]; then
+      echo "✗ ${free_gb} GB free at $BUILD; at least 60 GB needed for a dev build"
       ok=false
+    elif [ "$free_gb" -lt 100 ]; then
+      echo "• ${free_gb} GB free at $BUILD: enough for a dev build; keep symbol_level = 0 and"
+      echo "  sccache capped (SCCACHE_CACHE_SIZE, default 5G here); release builds need far more"
     else
       echo "✓ ${free_gb} GB free at $BUILD"
     fi
@@ -236,6 +242,9 @@ cmd_configure() {
 cmd_build() {
   [ -f "$OUT/args.gn" ] || die "not configured; run 'configure'"
   cd "$SRC"
+  # sccache defaults to 10 GB of cache; on a small disk that's better spent on
+  # the build itself. Takes effect when sccache's server starts.
+  SCCACHE_CACHE_SIZE="${SCCACHE_CACHE_SIZE:-5G}" \
   SISO_PATH="$SRC/third_party/siso/cipd/siso" \
     python3 third_party/depot_tools/autoninja.py -C "$OUT" -j "$JOBS" "${@:-chrome}"
 }

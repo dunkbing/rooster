@@ -68,8 +68,15 @@ adblock-rust needs it, and `aho-corasick` may use `unsafe` code.
 
 ## Building (macOS, Apple Silicon)
 
-Requirements: Xcode 26, Homebrew, Python 3 with Pillow, and **about 150 GB of
-free disk**. On a 256 GB Mac, put the build on an external SSD.
+Requirements: Xcode 26 or newer, Homebrew, Python 3 with Pillow, and **at least
+60 GB of free disk** for a dev build (about 45 GB used: ~16 GB of source,
+~3.5 GB of cached downloads, 20–30 GB of build output with no debug symbols).
+Keep `symbol_level = 0` in `config/flags.dev.gn` on a small disk; symbols add
+tens of GB. `rooster build` caps sccache at 5 GB (`SCCACHE_CACHE_SIZE`).
+
+Chromium 156 targets the macOS 26 SDK. Newer macOS/Xcode versions usually work,
+but can surface new deprecation warnings (not errors here) or SDK breakage that
+needs a patch.
 
 ```sh
 brew install python@3.13 wget zstd coreutils sccache
@@ -83,9 +90,8 @@ scripts/rooster build      # first build: overnight on a 16 GB M4; then minutes
 scripts/rooster run        # runs with its own profile in $ROOSTER_BUILD_DIR
 ```
 
-Before the first run, set `bundle_id` in `config/branding.ini` to a reverse-DNS
-name for a domain you own. It names the profile folder, so changing it later
-orphans existing profiles.
+The bundle ID is `dev.dunkbing.rooster` (`config/branding.ini`). It names the
+profile folder, so changing it later orphans existing profiles.
 
 Dev builds are configured for 16 GB of RAM (`config/flags.dev.gn`: component
 build, no LTO, no symbols, 6 parallel jobs via `ROOSTER_JOBS`). Release builds
