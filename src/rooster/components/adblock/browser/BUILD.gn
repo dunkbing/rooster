@@ -42,7 +42,8 @@ source_set("request_type") {
     "request_type.cc",
     "request_type.h",
   ]
-  public_deps = [ "//services/network/public/mojom:url_loader_base" ]
+  # Only the enum: the full bindings would need //services/network/public/cpp.
+  public_deps = [ "//services/network/public/mojom:url_loader_base_shared" ]
 }
 
 source_set("unit_tests") {
