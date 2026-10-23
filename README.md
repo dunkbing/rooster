@@ -68,7 +68,7 @@ adblock-rust needs it, and `aho-corasick` may use `unsafe` code.
 
 ## Building (macOS, Apple Silicon)
 
-Requirements: Xcode 26 or newer, Homebrew, Python 3.13, and **at least
+Requirements: Xcode 26 or newer, Homebrew, uv with Python 3.13, and **at least
 60 GB of free disk** for a dev build (about 45 GB used: ~16 GB of source,
 ~3.5 GB of cached downloads, 20–30 GB of build output with no debug symbols).
 Keep `symbol_level = 0` in `config/flags.dev.gn` on a small disk; symbols add
@@ -79,7 +79,8 @@ but can surface new deprecation warnings (not errors here) or SDK breakage that
 needs a patch.
 
 ```sh
-brew install python@3.13 wget zstd coreutils sccache   # rooster uses this python3
+brew install uv wget zstd coreutils sccache
+uv python install 3.13     # rooster finds it with uv and uses it as python3
 xcodebuild -downloadComponent MetalToolchain
 
 export ROOSTER_BUILD_DIR=/Volumes/YourSSD/rooster-build   # optional
@@ -116,7 +117,7 @@ Downloads are cached, so that only re-extracts.
 | `scripts/merge_patches.py` | Combines the three patch series minus skips |
 | `scripts/install_overlay.py` | Copies `src/` in, refusing to overwrite Chromium files |
 | `scripts/rebrand.py` | Helium → Rooster in branding, source and strings |
-| `resources/make_icons.py` | Generates every logo asset from one definition |
+| `resources/make_icons.py` | Generates every logo asset from one definition (`uv run resources/make_icons.py`) |
 
 Unit tests for Rooster's code: `scripts/rooster build rooster_unittests`, then
 run `out/Default/rooster_unittests` in the build's `src` directory.

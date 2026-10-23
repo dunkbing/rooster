@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+# /// script
+# requires-python = ">=3.10"
+# dependencies = ["pillow"]
+# ///
 """Generates every Rooster logo asset from one geometric definition.
 
 The mark is a rooster head built from circles, an oval and a triangle, so the
@@ -6,9 +10,10 @@ same shapes can be written as raster PNGs (Pillow, 4x supersampled), an SVG
 and Chromium's vector .icon format. Outputs go to resources/branding/ and are
 committed; rerun this after changing the design:
 
-    python3 resources/make_icons.py
+    uv run resources/make_icons.py
 
-Needs Pillow. The wordmark uses Inter when installed, else a fallback font.
+uv installs Pillow for that run only. The wordmark uses Inter when installed,
+else a fallback font.
 """
 
 import io

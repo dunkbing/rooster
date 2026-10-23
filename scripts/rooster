@@ -31,13 +31,22 @@ CACHE="$BUILD/download_cache"
 PREPARED="$BUILD/.prepared"
 JOBS="${ROOSTER_JOBS:-6}"
 
-# Rooster and Chromium's build scripts are verified with Python 3.13; prefer
-# Homebrew's (its libexec/bin has it as plain `python3`) over a newer default.
-# Only for this script and the build it runs, not your shell.
-PY313="${HOMEBREW_PREFIX:-/opt/homebrew}/opt/python@3.13/libexec/bin"
-if [ -x "$PY313/python3" ]; then
-  export PATH="$PY313:$PATH"
-fi
+# Rooster and Chromium's build scripts are verified with Python 3.13. Use the
+# one uv finds (`uv python install 3.13`), or ROOSTER_PYTHON, as `python3` for
+# this script and the build it runs; your shell keeps its own default. It's
+# linked into a directory of its own: the interpreter's own directory may hold
+# a `python3` of another version.
+use_python313() {
+  local py="${ROOSTER_PYTHON:-}"
+  if [ -z "$py" ] && command -v uv >/dev/null 2>&1; then
+    py="$(uv python find 3.13 2>/dev/null || true)"
+  fi
+  [ -n "$py" ] || return 0
+  mkdir -p "$BUILD/python-bin"
+  ln -sf "$py" "$BUILD/python-bin/python3"
+  export PATH="$BUILD/python-bin:$PATH"
+}
+use_python313
 
 log() { printf '\033[1;33m==>\033[0m %s\n' "$*"; }
 die() { printf '\033[1;31merror:\033[0m %s\n' "$*" >&2; exit 1; }
@@ -77,7 +86,7 @@ cmd_doctor() {
   echo "• $(command -v python3): $(python3 --version 2>&1)"
   case "$(python3 -c 'import sys; print("%d.%d" % sys.version_info[:2])' 2>/dev/null)" in
     3.13) ;;
-    *) echo "  Rooster is verified with Python 3.13 (brew install python@3.13; rooster puts it first on PATH)" ;;
+    *) echo "  Rooster is verified with Python 3.13: uv python install 3.13 (rooster picks it up)" ;;
   esac
   if command -v sccache >/dev/null 2>&1 || command -v ccache >/dev/null 2>&1; then
     echo "✓ compiler cache"
