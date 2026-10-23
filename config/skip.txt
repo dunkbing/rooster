@@ -1,0 +1,32 @@
+# Upstream patches Rooster leaves out: <patch path> <reason>
+# merge_patches.py fails if an entry stops existing upstream.
+
+# Helium services: Helium's hosted backend (extension proxy, bangs, filter
+# lists, component updates, browser updates). Rooster runs none of it.
+helium/ui/bangs-ui.patch UI for the !bangs list
+helium/ui/licenses-in-credits.patch credits for the onboarding page, which isn't built
+
+# uBlock Origin component: replaced by adblock-rust (milestone 2). Manifest V2
+# stays enabled, so uBlock Origin can be installed as a regular extension once
+# Web Store downloads work again.
+helium/core/ublock-setup-sources.patch bundled uBlock Origin
+helium/core/ublock-install-as-component.patch bundled uBlock Origin
+helium/core/ublock-reconfigure-defaults.patch bundled uBlock Origin
+helium/core/ublock-helium-services.patch uBlock filter lists through Helium services
+helium/ui/ublock-show-in-settings.patch bundled uBlock Origin
+
+# Crash uploads go to crash.helium.computer; Rooster has no crash server.
+helium/ui/crash-dialog.patch asks to upload crashes to Helium's server
+
+# Helium's own build, signing and update setup.
+helium/core/rbe-nativelink-config.patch Helium's remote build cluster
+helium/macos/rbe-linux-clang-wrapper.patch Helium's remote build cluster
+rebel/macos/sparkle-integration.patch Sparkle updater (Rooster adds its own later)
+helium/macos/updater/fixup-sparkle-glue.patch Sparkle updater
+helium/macos/updater/sparkle2-integration.patch Sparkle updater
+helium/macos/updater/disable-default-updater.patch Sparkle updater
+
+# Built on the uBlock component patches above; revisit with Web Store support.
+helium/core/component-updates.patch component updates through Helium services
+helium/core/fixups-component-setup.patch Web Store fixups component (needs extension downloads)
+helium/core/fixups-chrome-webstore-script.patch Web Store fixups component (needs extension downloads)

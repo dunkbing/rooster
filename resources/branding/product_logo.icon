@@ -1,0 +1,31 @@
+// Copyright 2026 The Rooster Authors
+// You can use, redistribute, and/or modify this source code under
+// the terms of the GPL-3.0 license that can be found in the LICENSE file.
+
+CANVAS_DIMENSIONS, 56,
+NEW_PATH,
+CIRCLE, 19.04f, 13.44f, 5.04f,
+NEW_PATH,
+CIRCLE, 25.76f, 10.36f, 5.88f,
+NEW_PATH,
+CIRCLE, 32.48f, 13.44f, 5.04f,
+NEW_PATH,
+MOVE_TO, 14f, 28f,
+LINE_TO, 14.84f, 39.2f,
+LINE_TO, 18.48f, 49.28f,
+LINE_TO, 30.8f, 49.28f,
+LINE_TO, 33.04f, 40.32f,
+LINE_TO, 35.28f, 30.8f,
+CLOSE,
+NEW_PATH,
+CIRCLE, 24.64f, 25.76f, 11.2f,
+NEW_PATH,
+MOVE_TO, 34.16f, 22.12f,
+LINE_TO, 44.8f, 26.32f,
+LINE_TO, 34.16f, 30.52f,
+CLOSE,
+NEW_PATH,
+OVAL, 32.48f, 36.12f, 3.36f, 4.76f,
+NEW_PATH,
+PATH_MODE_CLEAR,
+CIRCLE, 28.28f, 23.52f, 2.13f

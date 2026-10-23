@@ -1,0 +1,20 @@
+Builds Helium's DNS uncloaking patch without the bundled uBlock Origin.
+
+ublock-dns-uncloaking.patch gives the bundled uBlock component extra webRequest
+privileges through Manifest::IsUBlockComponent(), which comes from the uBlock
+component patches Rooster skips. With no bundled uBlock there is nothing to
+match, so the check is always false. The DNS canonical-name API itself stays.
+
+--- a/extensions/renderer/api/web_request_natives.cc
++++ b/extensions/renderer/api/web_request_natives.cc
+@@ -31,9 +31,7 @@
+ namespace {
+ 
+ bool IsBundledUBlock(const Extension* extension) {
+-  return extension &&
+-         extension->location() == mojom::ManifestLocation::kComponent &&
+-         Manifest::IsUBlockComponent(extension->id());
++  return false;
+ }
+ 
+ // Parses a webRequest.RequestFilter into a WebRequestParsedFilter, or returns

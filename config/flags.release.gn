@@ -1,0 +1,7 @@
+# Release builds: Helium's official configuration (ThinLTO + PGO). Needs far
+# more memory than a 16 GB machine has for linking; build these on a larger
+# machine or CI runner.
+is_official_build = true
+is_component_build = false
+chrome_pgo_phase = 2
+symbol_level = 1

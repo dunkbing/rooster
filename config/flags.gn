@@ -1,0 +1,2 @@
+# Rooster's GN arguments, applied over Helium's flags.gn and the platform's
+# flags (helium-macos flags.macos.gn). Later lines win.

@@ -1,0 +1,10 @@
+# Development builds, sized for a 16 GB Mac: no link-time optimization, no
+# PGO, shared libraries instead of one huge link, and no debug symbols (the
+# biggest memory and disk cost). Add `symbol_level = 1` when you need a
+# debugger backtrace.
+is_official_build = false
+is_component_build = true
+chrome_pgo_phase = 0
+symbol_level = 0
+blink_symbol_level = 0
+v8_symbol_level = 0
