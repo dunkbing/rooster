@@ -1,0 +1,54 @@
+# Copyright 2026 The Rooster Authors
+# You can use, redistribute, and/or modify this source code under
+# the terms of the GPL-3.0 license that can be found in the LICENSE file.
+
+import("//build/rust/rust_static_library.gni")
+
+# The adblock-rust engine, wrapped for C++. Free of content/ and network
+# service dependencies so it can be used and tested on its own.
+static_library("core") {
+  sources = [
+    "adblock_engine.cc",
+    "adblock_engine.h",
+  ]
+  public_deps = [ "//base" ]
+  deps = [ ":rust" ]
+}
+
+rust_static_library("rust") {
+  crate_root = "rust/lib.rs"
+  sources = [ crate_root ]
+  cxx_bindings = [ crate_root ]
+
+  # The cxx bridge.
+  allow_unsafe = true
+
+  deps = [
+    ":domain_resolver",
+    "//third_party/rust/adblock/v0_13:lib",
+  ]
+  visibility = [ ":*" ]
+}
+
+# C++ called from Rust: Chromium's public suffix list for adblock-rust.
+source_set("domain_resolver") {
+  sources = [
+    "domain_resolver.cc",
+    "domain_resolver.h",
+  ]
+  deps = [
+    "//base",
+    "//net",
+  ]
+  visibility = [ ":*" ]
+}
+
+source_set("unit_tests") {
+  testonly = true
+  sources = [ "adblock_engine_unittest.cc" ]
+  deps = [
+    ":core",
+    "//base",
+    "//testing/gtest",
+  ]
+}

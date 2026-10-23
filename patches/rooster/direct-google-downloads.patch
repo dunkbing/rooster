@@ -1,0 +1,64 @@
+Downloads extensions and spellcheck dictionaries directly from Google.
+
+Helium fetches these through its own proxy (Helium services), which Rooster
+keeps off, so with this patch they go where Chrome gets them:
+- extension installs and updates: clients2.google.com (Chrome Web Store)
+- Web Store item details for installs: chromewebstore.googleapis.com
+- spellcheck dictionaries: redirector.gvt1.com
+Google sees the request (and the extension IDs being installed or updated),
+as it would in Chrome. Extension usage pings stay off (see
+no-helium-endpoints.patch). helium_services_helpers.cc isn't on the domain
+substitution list, so these URLs survive the build.
+
+--- a/components/helium_services/helium_services_helpers.cc
++++ b/components/helium_services/helium_services_helpers.cc
+@@ -81,13 +81,11 @@
+ }
+ 
+ bool ShouldAccessExtensionService(const PrefService& prefs) {
+-    return ShouldAccessServices(prefs) &&
+-            prefs.GetBoolean(prefs::kHeliumExtProxyEnabled);
++    return true;
+ }
+ 
+ bool ShouldAccessDictionaryService(const PrefService& prefs) {
+-    return ShouldAccessServices(prefs) &&
+-            prefs.GetBoolean(prefs::kHeliumSpellcheckEnabled);
++    return true;
+ }
+ 
+ bool ShouldFetchBangs(const PrefService& prefs) {
+@@ -101,28 +99,17 @@
+ }
+ 
+ GURL GetExtensionUpdateURL(const PrefService& prefs) {
+-    if (!ShouldAccessExtensionService(prefs)) {
+-        return GetDummyURL();
+-    }
+-
+-    return GetServicesBaseURL(prefs).Resolve("/ext");
++    return GURL("https://clients2.google.com/service/update2/crx");
+ }
+ 
+ GURL GetWebstoreSnippetURL(const PrefService& prefs, std::string_view id) {
+-    if (!ShouldAccessExtensionService(prefs)) {
+-        return GetDummyURL();
+-    }
+-
+-    return GetServicesBaseURL(prefs).Resolve(
+-        base::StringPrintf("/ext/cws_snippet?id=%s", id));
++    return GURL(base::StringPrintf(
++        "https://chromewebstore.googleapis.com/v2/items/%s:fetchItemSnippet",
++        std::string(id).c_str()));
+ }
+ 
+ GURL GetSpellcheckURL(const PrefService& prefs) {
+-    if (!ShouldAccessDictionaryService(prefs)) {
+-        return GetDummyURL();
+-    }
+-
+-    return GetServicesBaseURL(prefs).Resolve("/dict/");
++    return GURL("https://redirector.gvt1.com/edgedl/chrome/dict/");
+ }
+ 
+ GURL GetBrowserUpdateURL(const PrefService& prefs) {

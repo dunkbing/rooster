@@ -1,0 +1,13 @@
+# Copyright 2026 The Rooster Authors
+# You can use, redistribute, and/or modify this source code under
+# the terms of the GPL-3.0 license that can be found in the LICENSE file.
+
+# Rooster's code compiled into //chrome/browser, for the pieces that need
+# chrome/browser's own headers (which a separate target couldn't depend on
+# without a cycle).
+rooster_browser_sources = [
+  "//rooster/browser/rooster_browser_main_extra_parts.cc",
+  "//rooster/browser/rooster_browser_main_extra_parts.h",
+]
+
+rooster_browser_deps = [ "//rooster/components/adblock/browser" ]

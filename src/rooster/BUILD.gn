@@ -1,0 +1,14 @@
+# Copyright 2026 The Rooster Authors
+# You can use, redistribute, and/or modify this source code under
+# the terms of the GPL-3.0 license that can be found in the LICENSE file.
+
+import("//testing/test.gni")
+
+# Unit tests for Rooster's own code: `scripts/rooster build rooster_unittests`.
+test("rooster_unittests") {
+  deps = [
+    "//base/test:run_all_unittests",
+    "//rooster/components/adblock/browser:unit_tests",
+    "//rooster/components/adblock/core:unit_tests",
+  ]
+}

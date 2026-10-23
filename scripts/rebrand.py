@@ -96,6 +96,8 @@ def source_replacements(b):
          'const char* product_name = "Helium";', f'const char* product_name = "{name}";'),
         ('chrome/installer/mac/signing/chromium_config.py',
          "return 'Helium'", f"return '{name}'"),
+        ('components/extstore_fixups/chrome-webstore.js',
+         "replace(CHROME_NAME_REGEX, 'Helium')", f"replace(CHROME_NAME_REGEX, '{name}')"),
     ]
 
 

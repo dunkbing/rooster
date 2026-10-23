@@ -1,3 +1,7 @@
 rooster/no-helium-endpoints.patch
+rooster/direct-google-downloads.patch
 rooster/onboarding-off.patch
 rooster/no-bundled-ublock.patch
+rooster/webstore-fixups-component.patch
+rooster/adblock-rust-crates.patch
+rooster/adblock-hooks.patch

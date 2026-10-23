@@ -14,8 +14,11 @@ Chromium 156 source (tarball)
   └─ Helium's patch series            pinned in config/pins.ini
   └─ helium-macos's patch series
        minus config/skip.txt          Helium parts Rooster leaves out
-  └─ Rooster's patches                patches/series
-  └─ Helium's substitutions           de-Googled domains, Chromium → Helium
+  └─ Rooster's patches                patches/series (small hooks into Chromium)
+  └─ src/                             Rooster's own code (//rooster) and the
+                                      vendored crates for adblock-rust
+  └─ Helium's substitutions           de-Googled domains (minus
+                                      config/domsub-keep.txt), Chromium → Helium
   └─ scripts/rebrand.py               Helium → Rooster (config/branding.ini)
   └─ resources/                       Rooster's icons
 ```
@@ -33,8 +36,35 @@ Helium's UI and settings work.
 Helium's hosted services, so Rooster never contacts imput's servers: the
 extension download proxy, !bangs, filter lists, spellcheck dictionaries,
 component and browser updates, crash uploads, the onboarding page, and the
-bundled uBlock Origin (replaced by adblock-rust in milestone 2). See
+bundled uBlock Origin (replaced by adblock-rust, below). See
 `config/skip.txt` and `patches/rooster/` for the exact changes and reasons.
+
+### Ad blocking
+Built in, using Brave's [adblock-rust](https://github.com/brave/adblock-rust)
+engine (0.13.3) instead of an extension:
+
+- `src/rooster/components/adblock/core`: a small cxx bridge to the crate and a
+  thread-safe C++ `Engine`. Third-party detection uses Chromium's public
+  suffix list.
+- `src/rooster/components/adblock/browser`: `AdblockService` downloads the
+  filter lists daily straight from their publishers (EasyList, EasyPrivacy,
+  uBlock Origin's filters/privacy/unbreak lists, Peter Lowe's list), caches
+  them and a compiled engine in `<profile dir>/Adblock`, and swaps in new
+  engines without blocking the UI. `AdblockURLLoaderFactory` sits in front
+  of every page's requests (and subframe navigations) and cancels matched
+  ones with `ERR_BLOCKED_BY_CLIENT`, or strips tracking parameters
+  (`removeparam`). Top-level pages, extensions and browser pages are left alone.
+- `patches/rooster/adblock-hooks.patch`: the only places Chromium calls in.
+- `patches/rooster/adblock-rust-crates.patch` and `src/third_party/rust`: the
+  crate and its dependencies, vendored with Chromium's `gnrt` tool.
+
+Not done yet: cosmetic filtering (element hiding and scriptlets, which most
+cookie-banner and YouTube rules need), `redirect` rules (matched requests are
+cancelled instead), per-site toggles and a settings UI.
+
+Two Chromium crate policies are overridden for this, both noted in
+`gnrt_config.toml`: `regex` (limited to tests in Chromium) ships, because
+adblock-rust needs it, and `aho-corasick` may use `unsafe` code.
 
 ## Building (macOS, Apple Silicon)
 
@@ -74,11 +104,17 @@ Downloads are cached, so that only re-extracts.
 | `config/branding.ini` | Product name, internal scheme (`rooster://`), bundle ID |
 | `config/skip.txt` | Upstream patches Rooster leaves out, each with a reason |
 | `config/flags*.gn` | GN build arguments, over Helium's |
+| `config/domsub-keep.txt` | Files exempt from domain substitution (Google endpoints kept) |
 | `patches/` | Rooster's own patches to the Helium-patched tree |
+| `src/` | Files added to the tree as-is: `//rooster` and vendored crates |
 | `scripts/rooster` | The build tool |
 | `scripts/merge_patches.py` | Combines the three patch series minus skips |
+| `scripts/install_overlay.py` | Copies `src/` in, refusing to overwrite Chromium files |
 | `scripts/rebrand.py` | Helium → Rooster in branding, source and strings |
 | `resources/make_icons.py` | Generates every logo asset from one definition |
+
+Unit tests for Rooster's code: `scripts/rooster build rooster_unittests`, then
+run `out/Default/rooster_unittests` in the build's `src` directory.
 
 ## Status
 
@@ -87,15 +123,17 @@ All patches apply to Chromium 156.0.8078.47 and `gn gen` resolves the whole
 build graph, but it hasn't been compiled yet; expect a round of compile fixes
 on the first Mac build.
 
+Downloads that Helium proxies go **directly to Google**, as in Chrome:
+Chrome Web Store installs and updates (`clients2.google.com`,
+`chromewebstore.googleapis.com`), component updates such as Widevine and
+certificate revocation lists (`update.googleapis.com`), and spellcheck
+dictionaries (`redirector.gvt1.com`). Google sees those requests; extension
+usage pings stay off. See `patches/rooster/direct-google-downloads.patch` and
+`config/domsub-keep.txt`.
+
 Known gaps, by design for now:
-- **No extension installs from the Chrome Web Store.** Helium routes them
-  through its proxy, which is off. Next decision: direct to Google, or a
-  Rooster proxy.
-- **No ad blocking yet.** The bundled uBlock Origin is gone and adblock-rust
-  arrives in milestone 2.
-- **No component updates**, so no Widevine (Netflix etc.) and no certificate
-  revocation list updates. Same decision as the Web Store.
-- No auto-update (Sparkle is skipped) and no spellcheck dictionary downloads.
+- Ad blocking covers network requests only so far (see "Ad blocking").
+- No auto-update (Sparkle is skipped).
 - The Helium services settings page is still there, with switches that do
   nothing.
 

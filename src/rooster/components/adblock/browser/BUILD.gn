@@ -1,0 +1,61 @@
+# Copyright 2026 The Rooster Authors
+# You can use, redistribute, and/or modify this source code under
+# the terms of the GPL-3.0 license that can be found in the LICENSE file.
+
+# The ad blocker in the browser process: filter list updates and the
+# network hook that cancels matched requests.
+source_set("browser") {
+  sources = [
+    "adblock_service.cc",
+    "adblock_service.h",
+    "adblock_url_loader_factory.cc",
+    "adblock_url_loader_factory.h",
+  ]
+  public_deps = [
+    "//base",
+    "//content/public/browser",
+    "//rooster/components/adblock/core",
+    "//services/network/public/cpp",
+    "//services/network/public/mojom",
+    "//url",
+  ]
+  deps = [
+    ":filter_lists",
+    ":request_type",
+    "//mojo/public/cpp/bindings",
+    "//net",
+  ]
+}
+
+# The default filter list catalog.
+source_set("filter_lists") {
+  sources = [
+    "filter_lists.cc",
+    "filter_lists.h",
+  ]
+  public_deps = [ "//base" ]
+}
+
+# Maps a request's fetch destination to adblock-rust's request type.
+source_set("request_type") {
+  sources = [
+    "request_type.cc",
+    "request_type.h",
+  ]
+  public_deps = [ "//services/network/public/mojom:url_loader_base" ]
+}
+
+source_set("unit_tests") {
+  testonly = true
+  sources = [
+    "filter_lists_unittest.cc",
+    "request_type_unittest.cc",
+  ]
+  deps = [
+    ":filter_lists",
+    ":request_type",
+    "//base",
+    "//testing/gtest",
+    "//url",
+  ]
+}

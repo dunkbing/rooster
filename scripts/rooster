@@ -158,9 +158,14 @@ cmd_prepare() {
   python3 "$HELIUM/utils/patches.py" apply "$SRC" "$BUILD/patches"
   touch "$PREPARED"
 
+  log "adding Rooster's own code and vendored crates"
+  python3 "$ROOT/scripts/install_overlay.py" --overlay "$ROOT/src" --tree "$SRC"
+
   log "domain substitution"
+  python3 "$ROOT/scripts/domsub_list.py" --list "$HELIUM/domain_substitution.list" \
+    --keep "$ROOT/config/domsub-keep.txt" --out "$BUILD/domain_substitution.rooster.list"
   python3 "$HELIUM/utils/domain_substitution.py" apply -r "$HELIUM/domain_regex.list" \
-    -f "$HELIUM/domain_substitution.list" "$SRC"
+    -f "$BUILD/domain_substitution.rooster.list" "$SRC"
 
   log "name substitution (Chromium → Helium), translations, version"
   python3 "$HELIUM/utils/name_substitution.py" --sub -t "$SRC"

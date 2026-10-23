@@ -1,0 +1,4 @@
+# Files excluded from Helium's domain substitution, so the Google endpoints in
+# them keep working: <path in Chromium src> <reason>
+
+components/component_updater/component_updater_url_constants.cc component updates (Widevine, certificate revocation lists) from update.googleapis.com

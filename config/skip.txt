@@ -26,7 +26,10 @@ helium/macos/updater/fixup-sparkle-glue.patch Sparkle updater
 helium/macos/updater/sparkle2-integration.patch Sparkle updater
 helium/macos/updater/disable-default-updater.patch Sparkle updater
 
-# Built on the uBlock component patches above; revisit with Web Store support.
+# Component updates come straight from Google instead (config/domsub-keep.txt).
 helium/core/component-updates.patch component updates through Helium services
-helium/core/fixups-component-setup.patch Web Store fixups component (needs extension downloads)
-helium/core/fixups-chrome-webstore-script.patch Web Store fixups component (needs extension downloads)
+
+# Written on top of the uBlock component patches; Rooster carries the same
+# change without them as patches/rooster/webstore-fixups-component.patch.
+helium/core/fixups-component-setup.patch replaced by rooster/webstore-fixups-component.patch
+helium/core/fixups-chrome-webstore-script.patch replaced by rooster/webstore-fixups-component.patch

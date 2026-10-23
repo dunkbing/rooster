@@ -1,0 +1,83 @@
+Hooks Rooster's ad blocker into the browser.
+
+- chrome_browser_main.cc: starts and stops the browser-wide AdblockService
+  (filter list updates) through RoosterBrowserMainExtraParts.
+- chrome_content_browser_client.cc: puts AdblockURLLoaderFactory in front of
+  frames', workers' and subframe navigations' requests, after Chrome's own
+  proxies (webRequest, enterprise headers).
+- chrome/browser/BUILD.gn: compiles //rooster/browser into //chrome/browser
+  (it needs chrome/browser headers) and links the ad blocker.
+- BUILD.gn: builds rooster_unittests with everything else.
+
+The code itself lives under //rooster; these are the only places Chromium
+calls into it.
+
+--- a/chrome/browser/chrome_browser_main.cc
++++ b/chrome/browser/chrome_browser_main.cc
+@@ -35,6 +35,7 @@
+ #include "chrome/browser/browser_process.h"
+ #include "chrome/browser/browser_process_impl.h"
+ #include "chrome/browser/chrome_browser_main_extra_parts.h"
++#include "rooster/browser/rooster_browser_main_extra_parts.h"
+ #include "chrome/browser/component_updater/registration.h"
+ #include "chrome/browser/crash_upload_list/helium_crash_reporting.h"
+ #include "chrome/browser/enterprise/browser_management/management_service_factory.h"
+@@ -843,6 +844,8 @@
+ 
+   main_parts->AddParts(std::make_unique<ChromeBrowserMainExtraPartsMemory>());
+ 
++  main_parts->AddParts(std::make_unique<rooster::RoosterBrowserMainExtraParts>());
++
+   chrome::AddMetricsExtraParts(main_parts.get());
+ 
+   main_parts->AddParts(
+--- a/chrome/browser/chrome_content_browser_client.cc
++++ b/chrome/browser/chrome_content_browser_client.cc
+@@ -658,6 +658,7 @@
+     BUILDFLAG(IS_CHROMEOS)
+ #include "chrome/browser/enterprise/network_header_injection/http_header_injection_proxying_url_loader_factory.h"
+ #include "chrome/browser/enterprise/network_header_injection/http_header_injection_utils.h"
++#include "rooster/components/adblock/browser/adblock_url_loader_factory.h"
+ #include "components/webapps/isolated_web_apps/scheme.h"
+ #endif  // BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) ||
+         // BUILDFLAG(IS_CHROMEOS)
+@@ -6830,6 +6831,9 @@
+ #endif  // BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) ||
+         // BUILDFLAG(IS_CHROMEOS)
+ 
++  rooster::adblock::AdblockURLLoaderFactory::MaybeProxy(
++      type, request_initiator, factory_builder);
++
+   signin::ProxyingURLLoaderFactory::MaybeProxyRequest(
+       frame, type == URLLoaderFactoryType::kNavigation, request_initiator,
+       isolation_info, factory_builder);
+--- a/chrome/browser/BUILD.gn
++++ b/chrome/browser/BUILD.gn
+@@ -42,6 +42,7 @@
+ import("//third_party/widevine/cdm/widevine.gni")
+ import("//tools/grit/grit_rule.gni")
+ import("//ui/base/ui_features.gni")
++import("//rooster/browser/sources.gni")
+ import("//ui/webui/webui_features.gni")
+ 
+ assert(enable_supervised_users)
+@@ -2029,6 +2030,9 @@
+       "//chrome/common/request_header_integrity",
+     ]
+   }
++
++  sources += rooster_browser_sources
++  deps += rooster_browser_deps
+ }
+ 
+ # This target no longer has any sources of its own; it only aggregates
+--- a/BUILD.gn
++++ b/BUILD.gn
+@@ -101,6 +101,7 @@
+       "//build/modules",
+       "//codelabs",
+       "//components:components_unittests",
++      "//rooster:rooster_unittests",
+       "//components/gwp_asan:gwp_asan_unittests",
+       "//infra/orchestrator:orchestrator_all",
+       "//net:net_unittests",
