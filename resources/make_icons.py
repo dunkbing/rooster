@@ -218,7 +218,9 @@ def write_mac_catalog():
 def vector_icon(canvas, color_argb=None, background=None):
     """Chromium .icon source. Monochrome unless colors are given."""
     s = canvas / 100.0
-    f = lambda v: f'{v * s:.2f}'.rstrip('0').rstrip('.') + ('f' if (v * s) % 1 else '')
+    def f(v):
+        text = f'{v * s:.2f}'.rstrip('0').rstrip('.')
+        return text + 'f' if '.' in text else text  # "14f" isn't valid C++
     lines = ['// Copyright 2026 The Rooster Authors',
              '// You can use, redistribute, and/or modify this source code under',
              '// the terms of the GPL-3.0 license that can be found in the LICENSE file.',
