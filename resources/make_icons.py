@@ -227,7 +227,7 @@ def vector_icon(canvas, color_argb=None, background=None):
              '', f'CANVAS_DIMENSIONS, {canvas},']
     inset, scale = (0.0, 1.0)
     if background:
-        lines += ['NEW_PATH', 'PATH_COLOR_ARGB, ' + ', '.join(f'0x{c:02X}' for c in (255, *background)) + ',',
+        lines += ['NEW_PATH,', 'PATH_COLOR_ARGB, ' + ', '.join(f'0x{c:02X}' for c in (255, *background)) + ',',
                   f'ROUND_RECT, 0, 0, {canvas}, {canvas}, {f(22.5)},']
         inset, scale = 13.0, 0.74
     g = lambda v, axis: f(inset + v * scale + (1.0 if axis == 'y' and background else 0.0))
