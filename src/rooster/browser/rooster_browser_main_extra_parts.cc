@@ -9,6 +9,7 @@
 #include "chrome/browser/browser_process.h"
 #include "chrome/common/chrome_paths.h"
 #include "rooster/components/adblock/browser/adblock_service.h"
+#include "services/network/public/cpp/shared_url_loader_factory.h"
 
 namespace rooster {
 
